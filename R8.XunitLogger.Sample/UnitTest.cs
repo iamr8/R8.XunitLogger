@@ -9,7 +9,12 @@ namespace R8.XunitLogger.Sample
 
         public UnitTest(ITestOutputHelper outputHelper)
         {
-            _loggerFactory = new LoggerFactory().AddXunit(outputHelper, options => options.MinLevel = LogLevel.Debug);
+            _loggerFactory = new LoggerFactory().AddXunit(outputHelper, options =>
+            {
+                options.MinLevel = LogLevel.Debug;
+                options.EnableColors = false;
+                options.Categories = new[] { "R8.XunitLogger.Sample.DummyObj" };
+            });
         }
 
         [Fact]

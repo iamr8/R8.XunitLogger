@@ -1,5 +1,61 @@
 # XunitLogger
-A low-config Log Provider for Xunit tests to add more resolution on services
+A low-config Log Provider for Xunit tests to add more resolution on services.
+
+```csharp
+// For simple usage
+var loggerFactory = new LoggerFactory().AddXunit(outputHelper, options => options.MinLevel = LogLevel.Debug);
+
+// For integration tests
+// It is better to inherit from `IFixtureLogProvider` interface, to keep the methods in a single place
+public class IntegrationTestFixture : IFixtureLogProvider
+{
+    public IntegrationTestFixture(ITestOutputHelper outputHelper)
+    {
+        this._serviceProvider = new ServiceCollection()
+            .AddLogging()
+            // Add the following line to your service collection
+            .AddXunitForwardingLoggerProvider(WriteLine, options => options.MinLevel = LogLevel.Warning)
+            .AddScoped<DummyObj>()
+            .BuildServiceProvider();
+        this.OnWriteLine += outputHelper.WriteLine;
+    }
+
+    public event LogDelegate? OnWriteLine;
+    public void WriteLine(string message) => OnWriteLine?.Invoke(message);
+}
+```
+*If you're encountering a mixed output of logger, you need to inherit `IDisposable` interface, and remove the event handler, on the same way you added it.*
+```csharp
+public void Dispose()
+{
+    this._fixture.OnWriteLine -= outputHelper.WriteLine;
+}
+```
+
+### Options
+According to that the strategies to get logs in Unit Tests and Integration Tests are different, you have two different options to configure the logger:
+- `XunitLoggerOptions` for Unit Tests
+- `XunitForwardingLoggerOptions` for Integration Tests
+
+### Colored Log Levels
+To enable colored log levels, you need to set the following attribute to `true` in your `XunitLoggerOptions`/`XunitForwardingLoggerOptions`:
+```csharp
+public bool EnableColors { get; set; }
+```
+| IDE                       | Supported | xUnit Version |
+|---------------------------|-----------|---------------|
+| Visual Studio 2022 17.6.2 | ❌       | 2.4.2         |
+| Rider 2023.1.2            | ✅       | 2.4.2         |
+
+### Output
+```text
+[6/7/2023 12:19:07 AM] info: R8.XunitLogger.Sample.DummyObj
+  This is an information message
+[6/7/2023 12:19:07 AM] warn: R8.XunitLogger.Sample.DummyObj
+  This is a warning message
+[6/7/2023 12:19:07 AM] fail: R8.XunitLogger.Sample.DummyObj
+  This is an error message
+```
 
 ---
 ## Usage
@@ -17,7 +73,13 @@ public class UnitTest
 
     public UnitTest(ITestOutputHelper outputHelper)
     {
-        _loggerFactory = new LoggerFactory().AddXunit(outputHelper, options => options.MinLevel = LogLevel.Debug);
+        _loggerFactory = new LoggerFactory().AddXunit(outputHelper, options =>
+        {
+            options.MinLevel = LogLevel.Debug; // Default is `LogLevel.Information`
+            options.IncludeTimestamp = true; // Default is `true`
+            options.EnableColors = true; // Default is `true`
+            options.Categories = new[] { "R8.XunitLogger.Sample.DummyObj" }; // Optional
+        });
     }
 
     [Fact]
@@ -42,6 +104,9 @@ public class UnitTest
 
 ####
 ```csharp
+using Microsoft.Extensions.DependencyInjection;
+using Xunit.Abstractions;
+
 public class IntegrationTest : IFixtureLogProvider, IDisposable
 {
     private readonly ServiceProvider _serviceProvider;
@@ -52,7 +117,11 @@ public class IntegrationTest : IFixtureLogProvider, IDisposable
     {
         this._serviceProvider = new ServiceCollection()
             .AddLogging()
-            .AddXunitForwardingLoggerProvider(WriteLine)
+            .AddXunitForwardingLoggerProvider(WriteLine, options => 
+            {
+                options.MinLevel = LogLevel.Information; // Default is `LogLevel.Information`
+                options.IncludeTimestamp = true; // Default is `true`
+            })
             .AddScoped<DummyObj>()
             .BuildServiceProvider();
         this.OnWriteLine += outputHelper.WriteLine;
@@ -79,6 +148,10 @@ public class IntegrationTest : IFixtureLogProvider, IDisposable
 ```
 #### with `IClassFixture`:
 ```csharp
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Xunit.Abstractions;
+
 public class IntegrationTestClassFixture : IClassFixture<IntegrationTestFixture>, IDisposable
 {
     private readonly IntegrationTestFixture _fixture;
@@ -127,8 +200,13 @@ public class IntegrationTestFixture : IFixtureLogProvider
 }
 ```
 
-#### with a `IConfiguration` service (`appsettings.json`)
+#### or with a `IConfiguration` (`appsettings.json`)
 ```csharp
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Xunit.Abstractions;
+
 public class IntegrationTestWithConfigurations : IFixtureLogProvider, IDisposable
 {
     private readonly ServiceProvider _serviceProvider;
@@ -166,15 +244,6 @@ public class IntegrationTestWithConfigurations : IFixtureLogProvider, IDisposabl
         // Assert
         Assert.True(true);
     }
-}
-```
-
-## A _possible issue_ in Integration Tests
-*If you're encountering a mixed output of logger, you need to inherit `IDisposable` interface, and remove the event handler, on the same way you added it.*
-```csharp
-public void Dispose()
-{
-    this._fixture.OnWriteLine -= _outputHelper.WriteLine;
 }
 ```
 

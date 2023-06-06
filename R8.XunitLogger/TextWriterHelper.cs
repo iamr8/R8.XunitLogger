@@ -1,19 +1,13 @@
 namespace R8.XunitLogger
 {
-    public static class TextWriterHelper
+    internal static class TextWriterHelper
     {
         private const string defaultForegroundColor = "\x1B[39m\x1B[22m";
         private const string defaultBackgroundColor = "\x1B[49m";
 
-        public const bool IsEnabled = false;
-
-        public static void WriteConsole(
-            this TextWriter textWriter,
-            string message,
-            ConsoleColor? background,
-            ConsoleColor? foreground)
+        public static void WriteConsole(this TextWriter textWriter, string message, ConsoleColor? background, ConsoleColor? foreground, bool colorize = true)
         {
-            if (IsEnabled)
+            if (colorize)
             {
                 // Order:
                 //   1. background color
@@ -35,7 +29,7 @@ namespace R8.XunitLogger
                     textWriter.Write(foregroundColor);
                 }
 
-                textWriter.WriteLine(message);
+                textWriter.Write(message);
 
                 if (foregroundColor != null)
                 {

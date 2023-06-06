@@ -23,7 +23,7 @@ namespace R8.XunitLogger
             services.Replace(ServiceDescriptor.Singleton<ILoggerFactory, LoggerFactory>(sp =>
             {
                 var loggerFactory = new LoggerFactory();
-                loggerFactory.AddProvider(new XunitForwardingLoggerProvider(sp, onLog, opt.MinLevel, opt.IncludeTimestamp));
+                loggerFactory.AddProvider(new XunitForwardingLoggerProvider(sp, onLog, opt));
                 return loggerFactory;
             }));
 
@@ -34,20 +34,18 @@ namespace R8.XunitLogger
         {
             private readonly IServiceProvider _serviceProvider;
             private readonly LogDelegate? _onLog;
-            private readonly LogLevel _minLevel;
-            private readonly bool _includeTimestamp;
+            private readonly XunitForwardingLoggerOptions _options;
 
-            public XunitForwardingLoggerProvider(IServiceProvider serviceProvider, LogDelegate? onLog, LogLevel minLevel, bool includeTimestamp)
+            public XunitForwardingLoggerProvider(IServiceProvider serviceProvider, LogDelegate? onLog, XunitForwardingLoggerOptions options)
             {
                 _serviceProvider = serviceProvider;
                 _onLog = onLog;
-                _minLevel = minLevel;
-                _includeTimestamp = includeTimestamp;
+                _options = options;
             }
 
             public ILogger CreateLogger(string categoryName)
             {
-                return new XunitForwardingLogger(_serviceProvider, categoryName, _onLog, _minLevel, _includeTimestamp);
+                return new XunitForwardingLogger(_serviceProvider, categoryName, _onLog, _options);
             }
 
             public void Dispose()
@@ -61,25 +59,27 @@ namespace R8.XunitLogger
             private readonly LogDelegate? _onLog;
             private readonly LogLevel _minLevel;
             private readonly bool _includeTimestamp;
+            private readonly bool _colorize;
 
-            public XunitForwardingLogger(IServiceProvider serviceProvider, string categoryName, LogDelegate? onLog, LogLevel minLevel, bool includeTimestamp)
+            public XunitForwardingLogger(IServiceProvider serviceProvider, string categoryName, LogDelegate? onLog, XunitForwardingLoggerOptions options)
             {
                 _categoryName = categoryName;
                 _onLog = onLog;
-                _includeTimestamp = includeTimestamp;
-                _minLevel = LogProviderHelper.GetMinimumLevel(serviceProvider, _categoryName, minLevel, Enumerable.Empty<string>());
+                _includeTimestamp = options.IncludeTimestamp;
+                _minLevel = LogProviderHelper.GetMinimumLevel(serviceProvider, _categoryName, options.MinLevel, Enumerable.Empty<string>());
+                _colorize = options.EnableColors;
             }
 
             public IDisposable BeginScope<TState>(TState state) => NullScope.Instance;
 
             public bool IsEnabled(LogLevel logLevel) => logLevel >= _minLevel;
 
-            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
             {
                 if (!IsEnabled(logLevel))
                     return;
 
-                var log = LogProviderHelper.FormatLog(_categoryName, _includeTimestamp, logLevel, state, exception, formatter);
+                var log = LogProviderHelper.FormatLog(_categoryName, _includeTimestamp, logLevel, state, exception, formatter, _colorize);
                 if (string.IsNullOrWhiteSpace(log))
                     return;
             

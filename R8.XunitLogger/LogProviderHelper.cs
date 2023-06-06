@@ -47,7 +47,7 @@ namespace R8.XunitLogger
             }
         }
 
-        public static string FormatLog<TState>(string categoryName, bool includeTimestamp, LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        public static string FormatLog<TState>(string categoryName, bool includeTimestamp, LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter, bool colorize)
         {
             if (formatter == null)
                 throw new ArgumentNullException(nameof(formatter));
@@ -74,12 +74,12 @@ namespace R8.XunitLogger
                 LogLevel.Critical => "crit",
             }, logLevel switch
             {
-                LogLevel.Trace => ConsoleColor.Black,
-                LogLevel.Debug => ConsoleColor.Black,
-                LogLevel.Information => ConsoleColor.Black,
-                LogLevel.Warning => ConsoleColor.Black,
-                LogLevel.Error => ConsoleColor.Red,
-                LogLevel.Critical => ConsoleColor.Red,
+                LogLevel.Trace => ConsoleColor.White,
+                LogLevel.Debug => ConsoleColor.White,
+                LogLevel.Information => ConsoleColor.White,
+                LogLevel.Warning => ConsoleColor.White,
+                LogLevel.Error => ConsoleColor.White,
+                LogLevel.Critical => ConsoleColor.White,
                 _ => ConsoleColor.Gray
             }, logLevel switch
             {
@@ -87,10 +87,10 @@ namespace R8.XunitLogger
                 LogLevel.Debug => ConsoleColor.Gray,
                 LogLevel.Information => ConsoleColor.Green,
                 LogLevel.Warning => ConsoleColor.Yellow,
-                LogLevel.Error => ConsoleColor.White,
-                LogLevel.Critical => ConsoleColor.White,
+                LogLevel.Error => ConsoleColor.Red,
+                LogLevel.Critical => ConsoleColor.DarkRed,
                 _ => ConsoleColor.Gray
-            });
+            }, colorize);
             tw.Write(": ");
             tw.Write(categoryName);
             tw.Write(Environment.NewLine);

@@ -14,7 +14,7 @@ namespace R8.XunitLogger
         /// <param name="options">An action to be invoked to configure the logger options.</param>
         /// <remarks>This approach is not recommended for integration tests. Use <see cref="XunitForwardingLoggerExtensions.AddXunitForwardingLoggerProvider"/> instead.</remarks>
         /// <exception cref="ArgumentNullException">When <paramref name="outputHelper" /> is <see langword="null" />.</exception>
-        /// <returns>The <see cref="T:Microsoft.Extensions.Logging.ILoggingBuilder" />.</returns>
+        /// <returns>The <see cref="Microsoft.Extensions.Logging.ILoggingBuilder" />.</returns>
         public static ILoggerFactory AddXunit(this ILoggerFactory factory, ITestOutputHelper outputHelper, Action<XunitLoggerOptions>? options = null)
         {
             if (outputHelper == null) 
@@ -22,10 +22,7 @@ namespace R8.XunitLogger
         
             var opt = new XunitLoggerOptions();
             options?.Invoke(opt);
-        
-            var categories = new List<string>();
-            opt.Categories?.Invoke(categories);
-            factory.AddProvider(new XunitLoggerProvider(opt.ServiceProvider, outputHelper, opt.MinLevel, opt.IncludeTimestamp, categories));
+            factory.AddProvider(new XunitLoggerProvider(outputHelper, opt));
             return factory;
         }
 
@@ -33,22 +30,18 @@ namespace R8.XunitLogger
         {
             private readonly IServiceProvider? _serviceProvider;
             private readonly ITestOutputHelper _output;
-            private readonly LogLevel _minLevel;
-            private readonly bool _includeTimestamp;
-            private readonly List<string> _categories;
+            private readonly XunitLoggerOptions _options;
 
-            public XunitLoggerProvider(IServiceProvider? serviceProvider, ITestOutputHelper output, LogLevel minLevel, bool includeTimestamp, List<string> categories)
+            public XunitLoggerProvider(ITestOutputHelper output, XunitLoggerOptions options)
             {
-                _serviceProvider = serviceProvider;
+                _serviceProvider = options.ServiceProvider;
                 _output = output;
-                _minLevel = minLevel;
-                _includeTimestamp = includeTimestamp;
-                _categories = categories;
+                _options = options;
             }
 
             public ILogger CreateLogger(string categoryName)
             {
-                return new XunitLogger(categoryName, _serviceProvider, _output, _minLevel, _includeTimestamp, _categories);
+                return new XunitLogger(categoryName, _serviceProvider, _output, _options);
             }
 
             public void Dispose()
@@ -61,25 +54,29 @@ namespace R8.XunitLogger
                 private readonly ITestOutputHelper _output;
                 private readonly LogLevel _minLevel;
                 private readonly bool _includeTimestamp;
+                private readonly bool _colorize;
 
-                public XunitLogger(string categoryName, IServiceProvider? serviceProvider, ITestOutputHelper output, LogLevel minLevel, bool includeTimestamp, List<string> categories)
+                public XunitLogger(string categoryName, IServiceProvider? serviceProvider, ITestOutputHelper output, XunitLoggerOptions options)
                 {
                     _categoryName = categoryName;
                     _output = output;
-                    _includeTimestamp = includeTimestamp;
-                    _minLevel = serviceProvider != null ? LogProviderHelper.GetMinimumLevel(serviceProvider, _categoryName, minLevel, categories) : minLevel;
+                    _includeTimestamp = options.IncludeTimestamp;
+                    _colorize = options.EnableColors;
+                    _minLevel = serviceProvider != null 
+                        ? LogProviderHelper.GetMinimumLevel(serviceProvider, _categoryName, options.MinLevel, options.Categories ?? Enumerable.Empty<string>()) 
+                        : options.MinLevel;
                 }
 
                 public IDisposable BeginScope<TState>(TState state) => NullScope.Instance;
 
                 public bool IsEnabled(LogLevel logLevel) => logLevel >= _minLevel;
 
-                public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception, string> formatter)
+                public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
                 {
                     if (!IsEnabled(logLevel))
                         return;
 
-                    var log = LogProviderHelper.FormatLog(_categoryName, _includeTimestamp, logLevel, state, exception, formatter);
+                    var log = LogProviderHelper.FormatLog(_categoryName, _includeTimestamp, logLevel, state, exception, formatter, _colorize);
                     if (string.IsNullOrWhiteSpace(log))
                         return;
 
