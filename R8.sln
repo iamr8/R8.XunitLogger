@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R8.XunitLogger", "R8.XunitLogger\R8.XunitLogger.csproj", "{07090091-6BAD-4A1D-841E-12B1DA9F4F28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R8.XunitLogger.Sample", "R8.XunitLogger.Sample\R8.XunitLogger.Sample.csproj", "{8EBCDE37-C28D-4719-BE84-7E1E6A23EAEF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07090091-6BAD-4A1D-841E-12B1DA9F4F28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07090091-6BAD-4A1D-841E-12B1DA9F4F28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07090091-6BAD-4A1D-841E-12B1DA9F4F28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07090091-6BAD-4A1D-841E-12B1DA9F4F28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EBCDE37-C28D-4719-BE84-7E1E6A23EAEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EBCDE37-C28D-4719-BE84-7E1E6A23EAEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EBCDE37-C28D-4719-BE84-7E1E6A23EAEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EBCDE37-C28D-4719-BE84-7E1E6A23EAEF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
