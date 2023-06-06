@@ -3,43 +3,44 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
-namespace R8.XunitLogger.Sample;
-
-public class IntegrationTestWithConfigurations : IFixtureLogProvider, IDisposable
+namespace R8.XunitLogger.Sample
 {
-    private readonly ServiceProvider _serviceProvider;
-
-    private DummyObj Dummy => _serviceProvider.GetRequiredService<DummyObj>();
-
-    public IntegrationTestWithConfigurations(ITestOutputHelper outputHelper)
+    public class IntegrationTestWithConfigurations : IFixtureLogProvider, IDisposable
     {
-        this._serviceProvider = new ServiceCollection()
-            .AddSingleton<IConfiguration>(sp => new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", false, true)
-                .Build())
-            .AddLogging()
-            .AddXunitForwardingLoggerProvider(WriteLine, options => options.MinLevel = LogLevel.Debug)
-            .AddScoped<DummyObj>()
-            .BuildServiceProvider();
-        this.OnWriteLine += outputHelper.WriteLine;
-    }
+        private readonly ServiceProvider _serviceProvider;
 
-    public event LogDelegate? OnWriteLine;
-    public void WriteLine(string message) => OnWriteLine?.Invoke(message);
+        private DummyObj Dummy => _serviceProvider.GetRequiredService<DummyObj>();
 
-    public void Dispose()
-    {
-        this.OnWriteLine -= OnWriteLine;
-    }
+        public IntegrationTestWithConfigurations(ITestOutputHelper outputHelper)
+        {
+            this._serviceProvider = new ServiceCollection()
+                .AddSingleton<IConfiguration>(sp => new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json", false, true)
+                    .Build())
+                .AddLogging()
+                .AddXunitForwardingLoggerProvider(WriteLine, options => options.MinLevel = LogLevel.Debug)
+                .AddScoped<DummyObj>()
+                .BuildServiceProvider();
+            this.OnWriteLine += outputHelper.WriteLine;
+        }
 
-    [Fact]
-    public void Test1()
-    {
-        // Act
-        Dummy.Test();
+        public event LogDelegate? OnWriteLine;
+        public void WriteLine(string message) => OnWriteLine?.Invoke(message);
 
-        // Assert
-        Assert.True(true);
+        public void Dispose()
+        {
+            this.OnWriteLine -= OnWriteLine;
+        }
+
+        [Fact]
+        public void Test1()
+        {
+            // Act
+            Dummy.Test();
+
+            // Assert
+            Assert.True(true);
+        }
     }
 }
