@@ -1,5 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Text;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +26,16 @@ namespace R8.XunitLogger
                 var pairs = providers.Where(logCategory => categoryName.StartsWith(logCategory.Key)).ToArray();
                 if (pairs.Length > 0)
                 {
-                    var defaultLogLevel = pairs.Length == 1 ? pairs.First() : pairs.MaxBy(c => c.Key.Length);
+                    var defaultLogLevel = pairs.Length == 1
+                        ? pairs.First()
+                        : pairs.Select(x => new
+                            {
+                                Iterate = x,
+                                Length = x.Key.Length
+                            })
+                            .OrderByDescending(x => x.Length)
+                            .Select(x => x.Iterate)
+                            .Max();
                     return defaultLogLevel.Value;
                 }
                 else
@@ -31,8 +45,7 @@ namespace R8.XunitLogger
             }
             else
             {
-                var c = categories.TryGetNonEnumeratedCount(out var cc) ? cc : categories.Count();
-                if (c == 0)
+                if (!categories.Any())
                     return defaultMinLevel;
             
                 var array = categories.Where(categoryName.StartsWith).ToArray();

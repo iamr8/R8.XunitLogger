@@ -1,4 +1,6 @@
-﻿namespace R8.XunitLogger
+﻿using System;
+
+namespace R8.XunitLogger
 {
     public delegate void LogDelegate(string message);
 

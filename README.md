@@ -1,6 +1,9 @@
 # XunitLogger
 A low-config Log Provider for Xunit tests to add more resolution on services.
 
+**Supported frameworks >=** `netstandard2.1`
+
+---
 ```csharp
 // For simple usage
 var loggerFactory = new LoggerFactory().AddXunit(outputHelper, options => options.MinLevel = LogLevel.Debug);

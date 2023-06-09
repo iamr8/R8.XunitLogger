@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+
 namespace R8.XunitLogger
 {
     internal static class TextWriterHelper

@@ -1,5 +1,10 @@
+using System;
+using System.Linq;
+
 using Microsoft.Extensions.Logging;
+
 using R8.XunitLogger.Options;
+
 using Xunit.Abstractions;
 
 namespace R8.XunitLogger
