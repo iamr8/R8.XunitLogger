@@ -27,7 +27,7 @@ public class IntegrationTestFixture : IFixtureLogProvider
     public void WriteLine(string message) => OnWriteLine?.Invoke(message);
 }
 ```
-*If you're encountering a mixed output of logger, you need to inherit `IDisposable` interface, and remove the event handler, on the same way you added it.*
+*If you're encountering a mixed output of logger, you need to implement `IDisposable` interface, and remove the event handler, on the same way you added it.*
 ```csharp
 public void Dispose()
 {
