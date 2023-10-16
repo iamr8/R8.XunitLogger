@@ -5,20 +5,13 @@ namespace R8.XunitLogger
 {
     internal static class TextWriterHelper
     {
-        private const string defaultForegroundColor = "\x1B[39m\x1B[22m";
-        private const string defaultBackgroundColor = "\x1B[49m";
+        private const string DefaultForegroundColor = "\x1B[39m\x1B[22m";
+        private const string DefaultBackgroundColor = "\x1B[49m";
 
         public static void WriteConsole(this TextWriter textWriter, string message, ConsoleColor? background, ConsoleColor? foreground, bool colorize = true)
         {
             if (colorize)
             {
-                // Order:
-                //   1. background color
-                //   2. foreground color
-                //   3. message
-                //   4. reset foreground color
-                //   5. reset background color
-
                 var backgroundColor = background.HasValue ? GetBackgroundColorEscapeCode(background.Value) : null;
                 var foregroundColor = foreground.HasValue ? GetForegroundColorEscapeCode(foreground.Value) : null;
 
@@ -36,12 +29,12 @@ namespace R8.XunitLogger
 
                 if (foregroundColor != null)
                 {
-                    textWriter.Write(defaultForegroundColor);
+                    textWriter.Write(DefaultForegroundColor);
                 }
 
                 if (backgroundColor != null)
                 {
-                    textWriter.Write(defaultBackgroundColor);
+                    textWriter.Write(DefaultBackgroundColor);
                 }
             }
             else
@@ -69,7 +62,7 @@ namespace R8.XunitLogger
                 ConsoleColor.Cyan => "\x1B[1m\x1B[36m",
                 ConsoleColor.White => "\x1B[1m\x1B[37m",
 
-                _ => defaultForegroundColor
+                _ => DefaultForegroundColor
             };
 
         private static string GetBackgroundColorEscapeCode(ConsoleColor color) =>
@@ -84,7 +77,7 @@ namespace R8.XunitLogger
                 ConsoleColor.DarkCyan => "\x1B[46m",
                 ConsoleColor.Gray => "\x1B[47m",
 
-                _ => defaultBackgroundColor
+                _ => DefaultBackgroundColor
             };
     }
 }

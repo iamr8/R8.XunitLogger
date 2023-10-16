@@ -18,7 +18,7 @@ namespace R8.XunitLogger
         /// <param name="onLog">An action to be invoked when a log message is logged. After inheriting the class from <see cref="IFixtureLogProvider" />, you need to pass <see cref="IFixtureLogProvider.WriteLine" /> to get the action.</param>
         /// <param name="options">An action to be invoked to configure the logger options.</param>
         /// <remarks>This approach is not recommended for integration tests. Use <see cref="XunitForwardingLoggerExtensions.AddXunitForwardingLoggerProvider"/> instead.</remarks>
-        /// <returns>The <see cref="Microsoft.Extensions.Logging.ILoggingBuilder" />.</returns>
+        /// <returns>A reference to this instance after the operation has completed.</returns>
         public static IServiceCollection AddXunitForwardingLoggerProvider(this IServiceCollection services, LogDelegate? onLog, Action<XunitForwardingLoggerOptions>? options = null)
         {
             var opt = new XunitForwardingLoggerOptions();
