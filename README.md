@@ -1,64 +1,24 @@
 # XunitLogger
-A low-config Log Provider for Xunit tests to add more resolution on services.
-
-**Supported frameworks >=** `netstandard2.1`
-
----
-```csharp
-// For simple usage
-var loggerFactory = new LoggerFactory().AddXunit(outputHelper, options => options.MinLevel = LogLevel.Debug);
-
-// For integration tests
-// It is better to inherit from `IFixtureLogProvider` interface, to keep the methods in a single place
-public class IntegrationTestFixture : IFixtureLogProvider
-{
-    public IntegrationTestFixture(ITestOutputHelper outputHelper)
-    {
-        this._serviceProvider = new ServiceCollection()
-            .AddLogging()
-            // Add the following line to your service collection
-            .AddXunitForwardingLoggerProvider(WriteLine, options => options.MinLevel = LogLevel.Warning)
-            .AddScoped<DummyObj>()
-            .BuildServiceProvider();
-        this.OnWriteLine += outputHelper.WriteLine;
-    }
-
-    public event LogDelegate? OnWriteLine;
-    public void WriteLine(string message) => OnWriteLine?.Invoke(message);
-}
-```
-*If you're encountering a mixed output of logger, you need to implement `IDisposable` interface, and remove the event handler, on the same way you added it.*
-```csharp
-public void Dispose()
-{
-    this._fixture.OnWriteLine -= outputHelper.WriteLine;
-}
-```
+Seamlessly integrate Xunit's `ITestOutputHelper` with `Microsoft.Extensions.Logging` using `netstandard2.1`. Capture logs from any layer of your application and send them to your test output, making debugging and integration testing a breeze. With minimal configuration, you can monitor log messages, helping to ensure your application runs smoothly.
 
 ### Options
-According to that the strategies to get logs in Unit Tests and Integration Tests are different, you have two different options to configure the logger:
-- `XunitLoggerOptions` for Unit Tests
-- `XunitForwardingLoggerOptions` for Integration Tests
+| Option                              | Description                                                                  | Default Value          | Xunit | Xunit Forwarding |
+|-------------------------------------|------------------------------------------------------------------------------|------------------------|-------|------------------|
+| MinLevel                            | The minimum level of log messages to be written to the test output           | `LogLevel.Information` | ✅     | ✅                |
+| IncludeTimestamp                    | Whether to include timestamp in log messages                                 | `true`                 | ✅     | ✅                |
+| [EnableColors](#colored_log_levels) | Whether to enable colored log levels                                         | `true`                 | ✅     | ✅                |
+| Categories                          | The categories (namespaces) of log messages to be written to the test output | `null`                 | ✅     | ✅                |
+| ServiceProvider                     | The service provider to be get `appsettings.json` from `IConfiguration`      | `null`                 | ❌     | ✅                |
 
 ### Colored Log Levels
 To enable colored log levels, you need to set the following attribute to `true` in your `XunitLoggerOptions`/`XunitForwardingLoggerOptions`:
 ```csharp
 public bool EnableColors { get; set; }
 ```
-| IDE                       | Supported | xUnit Version |
+| Tested on                 | Supported | xUnit Version |
 |---------------------------|-----------|---------------|
-| Visual Studio 2022 17.6.2 | ❌       | 2.4.2         |
-| Rider 2023.1.2            | ✅       | 2.4.2         |
-
-### Output
-```text
-[6/7/2023 12:19:07 AM] info: R8.XunitLogger.Sample.DummyObj
-  This is an information message
-[6/7/2023 12:19:07 AM] warn: R8.XunitLogger.Sample.DummyObj
-  This is a warning message
-[6/7/2023 12:19:07 AM] fail: R8.XunitLogger.Sample.DummyObj
-  This is an error message
-```
+| Visual Studio 2022 17.6.2 | ❌         | 2.5.2         |
+| Rider 2023.1.2            | ✅         | 2.5.2         |
 
 ---
 ## Usage
@@ -135,6 +95,7 @@ public class IntegrationTest : IFixtureLogProvider, IDisposable
 
     public void Dispose()
     {
+        // It's recommended to remove the event handler, to avoid mixing logs from different tests
         this.OnWriteLine -= OnWriteLine;
     }
 
@@ -169,6 +130,7 @@ public class IntegrationTestClassFixture : IClassFixture<IntegrationTestFixture>
 
     public void Dispose()
     {
+        // It's recommended to remove the event handler, to avoid mixing logs from different tests
         this._fixture.OnWriteLine -= _outputHelper.WriteLine;
     }
 
@@ -235,6 +197,7 @@ public class IntegrationTestWithConfigurations : IFixtureLogProvider, IDisposabl
 
     public void Dispose()
     {
+        // It's recommended to remove the event handler, to avoid mixing logs from different tests
         this.OnWriteLine -= OnWriteLine;
     }
 
@@ -250,8 +213,17 @@ public class IntegrationTestWithConfigurations : IFixtureLogProvider, IDisposabl
 }
 ```
 
----
+### Output
+```text
+[6/7/2023 12:19:07 AM] info: R8.XunitLogger.Sample.DummyObj
+  This is an information message
+[6/7/2023 12:19:07 AM] warn: R8.XunitLogger.Sample.DummyObj
+  This is a warning message
+[6/7/2023 12:19:07 AM] fail: R8.XunitLogger.Sample.DummyObj
+  This is an error message
+```
 
+---
 ## Conclusion
 This package is a simple implementation of `ILoggerProvider` and `ILogger` interfaces, which is useful for Xunit tests. It's not a replacement for `ILoggerProvider` and `ILogger` interfaces, and it's not a replacement for `ILoggerFactory` and `ILogger<T>` interfaces. It's just a simple implementation of these interfaces, which is useful for Xunit tests.
 
