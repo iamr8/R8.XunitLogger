@@ -6,7 +6,7 @@ Seamlessly integrate Xunit's `ITestOutputHelper` with `Microsoft.Extensions.Logg
 |-------------------------------------|------------------------------------------------------------------------------|------------------------|-------|------------------|
 | MinLevel                            | The minimum level of log messages to be written to the test output           | `LogLevel.Information` | ✅     | ✅                |
 | IncludeTimestamp                    | Whether to include timestamp in log messages                                 | `true`                 | ✅     | ✅                |
-| [EnableColors](#colored_log_levels) | Whether to enable colored log levels                                         | `true`                 | ✅     | ✅                |
+| [EnableColors](#colored-log-levels) | Whether to enable colored log levels                                         | `true`                 | ✅     | ✅                |
 | Categories                          | The categories (namespaces) of log messages to be written to the test output | `null`                 | ✅     | ✅                |
 | ServiceProvider                     | The service provider to be get `appsettings.json` from `IConfiguration`      | `null`                 | ❌     | ✅                |
 
