@@ -22,7 +22,40 @@ public bool EnableColors { get; set; }
 
 ---
 ## Usage
-[See examples](https://github.com/iamr8/R8.XunitLogger/tree/master/R8.XunitLogger.Sample)
+For unit testing:
+```csharp
+public class UnitTest
+{
+    public UnitTest(ITestOutputHelper outputHelper)
+    {
+        _loggerFactory = new LoggerFactory().AddXunit(outputHelper, options =>
+        {
+            options.MinLevel = LogLevel.Debug;
+            options.IncludeTimestamp = true;
+        });
+    }
+}
+```
+
+For integration testing:
+```csharp
+public class IntegrationTest : IXunitForwardingLogProvider
+{
+    public IntegrationTest(ITestOutputHelper outputHelper)
+    {
+        var serviceProvider = new ServiceCollection()
+            .AddLogging()
+            .AddXunitForwardingLoggerProvider(WriteLine)
+            .BuildServiceProvider();
+        this.OnWriteLine += outputHelper.WriteLine;
+    }
+
+    public event LogDelegate? OnWriteLine;
+    public void WriteLine(string message) => OnWriteLine?.Invoke(message);
+}
+```
+
+[See more examples here](https://github.com/iamr8/R8.XunitLogger/tree/master/R8.XunitLogger.Sample)
 
 ---
 
@@ -35,7 +68,3 @@ public bool EnableColors { get; set; }
 [6/7/2023 12:19:07 AM] fail: R8.XunitLogger.Sample.DummyObj
   This is an error message
 ```
-
----
-## Conclusion
-This package is a simple implementation of `ILoggerProvider` and `ILogger` interfaces, which is useful for Xunit tests. It's not a replacement for `ILoggerProvider` and `ILogger` interfaces, and it's not a replacement for `ILoggerFactory` and `ILogger<T>` interfaces. It's just a simple implementation of these interfaces, which is useful for Xunit tests.
