@@ -32,7 +32,7 @@ namespace R8.XunitLogger.Sample
         }
     }
 
-    public class IntegrationTestFixture : IFixtureLogProvider
+    public class IntegrationTestFixture : IXunitForwardingLogProvider
     {
         private readonly ServiceProvider _serviceProvider;
 

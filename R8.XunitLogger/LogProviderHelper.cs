@@ -12,29 +12,25 @@ namespace R8.XunitLogger
 {
     internal static class LogProviderHelper
     {
-        public static LogLevel GetMinimumLevel(IServiceProvider serviceProvider, string categoryName, LogLevel defaultMinLevel, IEnumerable<string> categories)
+        public static LogLevel GetMinimumLevel(IServiceProvider serviceProvider, string categoryName, LogLevel defaultMinLevel, IList<string> categories)
         {
             if (serviceProvider.GetService(typeof(IConfiguration)) is IConfiguration configuration)
             {
                 var providers = configuration
                     .GetSection("Logging:LogLevel")
                     .GetChildren()
-                    .ToDictionary(x => x.Key, x => Enum.Parse<LogLevel>(x.Value));
+                    .ToDictionary(x => x.Key, x => Enum.Parse<LogLevel>(x.Value), StringComparer.Ordinal);
                 if (!providers.Any())
                     return defaultMinLevel;
 
-                var pairs = providers.Where(logCategory => categoryName.StartsWith(logCategory.Key)).ToArray();
+                var pairs = providers.Where(logCategory => categoryName.StartsWith(logCategory.Key, StringComparison.Ordinal)).ToArray();
                 if (pairs.Length > 0)
                 {
                     var defaultLogLevel = pairs.Length == 1
-                        ? pairs.First()
-                        : pairs.Select(x => new
-                            {
-                                Iterate = x,
-                                Length = x.Key.Length
-                            })
+                        ? pairs[0]
+                        : pairs.Select(pair => new { Pair = pair, Length = pair.Key.Length, })
                             .OrderByDescending(x => x.Length)
-                            .Select(x => x.Iterate)
+                            .Select(x => x.Pair)
                             .Max();
                     return defaultLogLevel.Value;
                 }
@@ -45,7 +41,7 @@ namespace R8.XunitLogger
             }
             else
             {
-                if (!categories.Any())
+                if (categories.Count == 0)
                     return defaultMinLevel;
             
                 var array = categories.Where(categoryName.StartsWith).ToArray();
@@ -60,7 +56,7 @@ namespace R8.XunitLogger
             }
         }
 
-        public static string FormatLog<TState>(string categoryName, bool includeTimestamp, LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter, bool colorize)
+        internal static string FormatLog<TState>(string categoryName, bool includeTimestamp, LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter, bool colorize)
         {
             if (formatter == null)
                 throw new ArgumentNullException(nameof(formatter));

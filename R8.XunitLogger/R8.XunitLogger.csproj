@@ -4,10 +4,23 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <Nullable>enable</Nullable>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
-        <IsPackable>false</IsPackable>
+        <Version>1.0.0</Version>
+        <Authors>iamr8</Authors>
+        <Description>Simple logging library for Xunit</Description>
+        <PackageId>R8.XunitLogger</PackageId>
+        <PackageTags>logging, xunit, xunitlogger, logger, xunit logger, dotnet, loggerfactory</PackageTags>
+        <PackageProjectUrl>https://github.com/iamr8/R8.XunitLogger</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/iamr8/R8.XunitLogger</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <IncludeSymbols>true</IncludeSymbols>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Meziantou.Analyzer" Version="2.0.103">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />

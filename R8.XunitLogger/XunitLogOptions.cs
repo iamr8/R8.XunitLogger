@@ -1,8 +1,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace R8.XunitLogger.Options
+namespace R8.XunitLogger
 {
+    /// <summary>
+    /// A base class to options for Xunit logging.
+    /// </summary>
     public abstract class XunitLogOptions
     {
         /// <summary>

@@ -2,8 +2,6 @@
 
 namespace R8.XunitLogger
 {
-    public delegate void LogDelegate(string message);
-
     /// <summary>
     /// An empty scope without any logic
     /// </summary>

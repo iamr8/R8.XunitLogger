@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace R8.XunitLogger.Sample
 {
-    public class IntegrationTestWithConfigurations : IFixtureLogProvider, IDisposable
+    public class IntegrationTestWithConfigurations : IXunitForwardingLogProvider, IDisposable
     {
         private readonly ServiceProvider _serviceProvider;
 

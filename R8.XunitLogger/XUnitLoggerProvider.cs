@@ -1,9 +1,6 @@
 using System;
-using System.Linq;
 
 using Microsoft.Extensions.Logging;
-
-using R8.XunitLogger.Options;
 
 using Xunit.Abstractions;
 
@@ -68,7 +65,7 @@ namespace R8.XunitLogger
                     _includeTimestamp = options.IncludeTimestamp;
                     _colorize = options.EnableColors;
                     _minLevel = serviceProvider != null 
-                        ? LogProviderHelper.GetMinimumLevel(serviceProvider, _categoryName, options.MinLevel, options.Categories ?? Enumerable.Empty<string>()) 
+                        ? LogProviderHelper.GetMinimumLevel(serviceProvider, _categoryName, options.MinLevel, options.Categories) 
                         : options.MinLevel;
                 }
 

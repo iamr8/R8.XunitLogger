@@ -1,24 +1,21 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-
-using R8.XunitLogger.Options;
 
 namespace R8.XunitLogger
 {
     public static class XunitForwardingLoggerExtensions
     {
         /// <summary>
-        /// Adds an xunit logger named 'Xunit' to the factory.
+        /// Adds Xunit logging service to the specified IServiceCollection.
         /// </summary>
-        /// <param name="services">The <see cref="Microsoft.Extensions.DependencyInjection.IServiceCollection" /> to add logging services to.</param>
-        /// <param name="onLog">An action to be invoked when a log message is logged. After inheriting the class from <see cref="IFixtureLogProvider" />, you need to pass <see cref="IFixtureLogProvider.WriteLine" /> to get the action.</param>
-        /// <param name="options">An action to be invoked to configure the logger options.</param>
-        /// <remarks>This approach is not recommended for integration tests. Use <see cref="XunitForwardingLoggerExtensions.AddXunitForwardingLoggerProvider"/> instead.</remarks>
-        /// <returns>A reference to this instance after the operation has completed.</returns>
+        /// <param name="services">The <see cref="IServiceCollection"/> to add services to.</param>
+        /// <param name="onLog">An action to be invoked when a log message is logged. It's preferred to use <see cref="IXunitForwardingLogProvider.WriteLine"/>.</param>
+        /// <param name="options">The options to configure the logger.</param>
+        /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
         public static IServiceCollection AddXunitForwardingLoggerProvider(this IServiceCollection services, LogDelegate? onLog, Action<XunitForwardingLoggerOptions>? options = null)
         {
             var opt = new XunitForwardingLoggerOptions();
@@ -70,7 +67,7 @@ namespace R8.XunitLogger
                 _categoryName = categoryName;
                 _onLog = onLog;
                 _includeTimestamp = options.IncludeTimestamp;
-                _minLevel = LogProviderHelper.GetMinimumLevel(serviceProvider, _categoryName, options.MinLevel, Enumerable.Empty<string>());
+                _minLevel = LogProviderHelper.GetMinimumLevel(serviceProvider, _categoryName, options.MinLevel, new List<string>());
                 _colorize = options.EnableColors;
             }
 

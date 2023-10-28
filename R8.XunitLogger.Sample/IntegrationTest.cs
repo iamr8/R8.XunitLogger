@@ -3,20 +3,22 @@ using Xunit.Abstractions;
 
 namespace R8.XunitLogger.Sample
 {
-    public class IntegrationTest : IFixtureLogProvider, IDisposable
+    public class IntegrationTest : IXunitForwardingLogProvider, IDisposable
     {
+        private readonly ITestOutputHelper _outputHelper;
         private readonly ServiceProvider _serviceProvider;
 
         private DummyObj Dummy => _serviceProvider.GetRequiredService<DummyObj>();
 
         public IntegrationTest(ITestOutputHelper outputHelper)
         {
+            _outputHelper = outputHelper;
             this._serviceProvider = new ServiceCollection()
                 .AddLogging()
                 .AddXunitForwardingLoggerProvider(WriteLine)
                 .AddScoped<DummyObj>()
                 .BuildServiceProvider();
-            this.OnWriteLine += outputHelper.WriteLine;
+            this.OnWriteLine += _outputHelper.WriteLine;
         }
 
         public event LogDelegate? OnWriteLine;
@@ -24,7 +26,7 @@ namespace R8.XunitLogger.Sample
 
         public void Dispose()
         {
-            this.OnWriteLine -= OnWriteLine;
+            this.OnWriteLine -= _outputHelper.WriteLine;
         }
 
         [Fact]
