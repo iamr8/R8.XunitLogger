@@ -7,12 +7,14 @@ namespace R8.XunitLogger.Sample
 {
     public class IntegrationTestWithConfigurations : IXunitForwardingLogProvider, IDisposable
     {
+        private readonly ITestOutputHelper _outputHelper;
         private readonly ServiceProvider _serviceProvider;
 
         private DummyObj Dummy => _serviceProvider.GetRequiredService<DummyObj>();
 
         public IntegrationTestWithConfigurations(ITestOutputHelper outputHelper)
         {
+            _outputHelper = outputHelper;
             this._serviceProvider = new ServiceCollection()
                 .AddSingleton<IConfiguration>(sp => new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -22,7 +24,7 @@ namespace R8.XunitLogger.Sample
                 .AddXunitForwardingLoggerProvider(WriteLine, options => options.MinLevel = LogLevel.Debug)
                 .AddScoped<DummyObj>()
                 .BuildServiceProvider();
-            this.OnWriteLine += outputHelper.WriteLine;
+            this.OnWriteLine += _outputHelper.WriteLine;
         }
 
         public event LogDelegate? OnWriteLine;
@@ -30,7 +32,7 @@ namespace R8.XunitLogger.Sample
 
         public void Dispose()
         {
-            this.OnWriteLine -= OnWriteLine;
+            this.OnWriteLine -= _outputHelper.WriteLine;
         }
 
         [Fact]
