@@ -25,10 +25,8 @@ dotnet add package R8.XunitLogger
 
 ### Colored Log Levels
 
-| Tested on                 | Minimum Supported Version | xUnit Version |
-|---------------------------|---------------------------|---------------|
-| Visual Studio 2022 17.6.2 | `Not supported`           | 2.5.2         |
-| Rider 2023.3.2            | `Nearly all versions`     | 2.5.2         |
+`Microsoft Visual Studio` does not support colored log levels. However, `JetBrains Rider` does support colored log levels. If you want to enable colored log levels, you can use `LoggerColorBehavior` enum.
+If the value is set to `LoggerColorBehavior.Default`, the log levels will be colored in `JetBrains Rider` and will not be colored in `Microsoft Visual Studio`.
 
 ---
 
