@@ -44,7 +44,7 @@ namespace R8.XunitLogger.Sample
                 .AddLogging()
                 .AddXunitLogger(message => OnWriteLine?.Invoke(message), options =>
                 {
-                    options.MinLevel = LogLevel.Warning;
+                    options.MinimumLevel = LogLevel.Warning;
                     options.ColorBehavior = LoggerColorBehavior.Enabled;
                 })
                 .AddScoped<DummyObj>()

@@ -8,9 +8,24 @@ namespace R8.XunitLogger
         private const string DefaultForegroundColor = "\x1B[39m\x1B[22m";
         private const string DefaultBackgroundColor = "\x1B[49m";
 
+        private static bool IsRider
+        {
+            get
+            {
+                var host = Environment.GetEnvironmentVariable("RESHARPER_HOST");
+                return !string.IsNullOrEmpty(host) && host.Equals("Rider", StringComparison.Ordinal);
+            }
+        }
+
         public static void WriteConsole(this TextWriter textWriter, string message, ConsoleColor? background, ConsoleColor? foreground, LoggerColorBehavior colorBehavior)
         {
-            if (colorBehavior == LoggerColorBehavior.Enabled)
+            LoggerColorBehavior lcb;
+            if (colorBehavior == LoggerColorBehavior.Default)
+                lcb = IsRider ? LoggerColorBehavior.Enabled : LoggerColorBehavior.Disabled;
+            else
+                lcb = colorBehavior;
+            
+            if (lcb == LoggerColorBehavior.Enabled)
             {
                 var backgroundColor = background.HasValue ? GetBackgroundColorEscapeCode(background.Value) : null;
                 var foregroundColor = foreground.HasValue ? GetForegroundColorEscapeCode(foreground.Value) : null;

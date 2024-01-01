@@ -11,8 +11,8 @@ namespace R8.XunitLogger.Sample
         {
             _loggerFactory = new LoggerFactory().AddXunit(outputHelper, options =>
             {
-                options.MinLevel = LogLevel.Debug;
-                options.ColorBehavior = LoggerColorBehavior.Disabled;
+                options.MinimumLevel = LogLevel.Debug;
+                options.ColorBehavior = LoggerColorBehavior.Default;
                 options.IncludeScopes = true;
                 options.Categories = new[] { "R8.XunitLogger.Sample.DummyObj" };
             });

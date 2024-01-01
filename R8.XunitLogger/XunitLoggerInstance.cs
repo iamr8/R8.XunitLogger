@@ -27,8 +27,8 @@ namespace R8.XunitLogger
             _output = output;
             _options = options;
             _minLevel = serviceProvider != null
-                ? GetMinimumLevel(serviceProvider, _categoryName, options.MinLevel, options.Categories)
-                : options.MinLevel;
+                ? GetMinimumLevel(serviceProvider, _categoryName, options.MinimumLevel, options.Categories)
+                : options.MinimumLevel;
         }
 
         public IDisposable BeginScope<TState>(TState state)

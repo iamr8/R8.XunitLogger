@@ -23,7 +23,7 @@ namespace R8.XunitLogger.Sample
                 .AddLogging()
                 .AddXunitLogger(message => OnWriteLine?.Invoke(message), options =>
                 {
-                    options.MinLevel = LogLevel.Debug;
+                    options.MinimumLevel = LogLevel.Debug;
                     options.ColorBehavior = LoggerColorBehavior.Enabled;
                 })
                 .AddScoped<DummyObj>()
