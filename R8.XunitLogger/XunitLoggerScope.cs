@@ -9,12 +9,12 @@ namespace R8.XunitLogger
     /// A class representing a scope for logging. This class cannot be inherited.
     /// </summary>
     /// <remarks>
-    /// Initializes a new instance of the <see cref="XUnitLogScope"/> class.
+    /// Initializes a new instance of the <see cref="XunitLoggerScope"/> class.
     /// </remarks>
-    internal sealed class XUnitLogScope
+    internal sealed class XunitLoggerScope
     {
         /// <param name="state">The state object for the scope.</param>
-        public XUnitLogScope(object state)
+        public XunitLoggerScope(object state)
         {
             this.State = state;
         }
@@ -22,7 +22,7 @@ namespace R8.XunitLogger
         /// <summary>
         /// The scope for the current thread.
         /// </summary>
-        private static readonly AsyncLocal<XUnitLogScope?> _value = new AsyncLocal<XUnitLogScope?>();
+        private static readonly AsyncLocal<XunitLoggerScope?> _value = new AsyncLocal<XunitLoggerScope?>();
 
         /// <summary>
         /// Gets the state object for the scope.
@@ -32,7 +32,7 @@ namespace R8.XunitLogger
         /// <summary>
         /// Gets or sets the current scope.
         /// </summary>
-        internal static XUnitLogScope? Current
+        internal static XunitLoggerScope? Current
         {
             get => _value.Value;
             set => _value.Value = value;
@@ -41,7 +41,7 @@ namespace R8.XunitLogger
         /// <summary>
         /// Gets the parent scope.
         /// </summary>
-        internal XUnitLogScope? Parent { get; private set; }
+        internal XunitLoggerScope? Parent { get; private set; }
 
         /// <inheritdoc />
         public override string ToString() => State.ToString();
@@ -57,7 +57,7 @@ namespace R8.XunitLogger
         {
             var temp = Current;
 
-            Current = new XUnitLogScope(state)
+            Current = new XunitLoggerScope(state)
             {
                 Parent = temp,
             };

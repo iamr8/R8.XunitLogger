@@ -19,7 +19,7 @@ namespace R8.XunitLogger
         private readonly LogLevel _minLevel;
 
         private const string Padding = "      ";
-        
+
         public XunitLoggerInstance(string categoryName, IServiceProvider? serviceProvider, Action<string>? onWriteLine, ITestOutputHelper? output, XunitLoggerOptions options)
         {
             _categoryName = categoryName;
@@ -38,7 +38,7 @@ namespace R8.XunitLogger
                 throw new ArgumentNullException(nameof(state));
             }
 
-            return XUnitLogScope.Push(state);
+            return XunitLoggerScope.Push(state);
         }
 
         public bool IsEnabled(LogLevel logLevel) => logLevel >= _minLevel;
@@ -91,14 +91,14 @@ namespace R8.XunitLogger
                 _ => ConsoleColor.Gray
             }, _options.ColorBehavior);
             tw.Write(": ");
-            
+
             tw.Write(_categoryName);
-            
+
             tw.Write('[');
             tw.Write(eventId);
             tw.Write(']');
             tw.WriteLine();
-            
+
             if (_options.IncludeScopes)
             {
                 GetScopeInformation(tw);
@@ -176,16 +176,16 @@ namespace R8.XunitLogger
             }
         }
 
-        
+
         /// <summary>
         /// Gets the scope information for the current operation.
         /// </summary>
         /// <param name="textWriter">The <see cref="StringBuilder"/> to write the scope to.</param>
         private static void GetScopeInformation(TextWriter textWriter)
         {
-            var current = XUnitLogScope.Current;
+            var current = XunitLoggerScope.Current;
 
-            var stack = new Stack<XUnitLogScope>();
+            var stack = new Stack<XunitLoggerScope>();
             while (current != null)
             {
                 stack.Push(current);
@@ -197,9 +197,9 @@ namespace R8.XunitLogger
             while (stack.Count > 0)
             {
                 if (index == 0) textWriter.Write(Padding);
-                
+
                 var elem = stack.Pop();
-                foreach (var property in StringifyScope(elem))
+                foreach (var property in GetScopes(elem))
                 {
                     if (index > 0) textWriter.Write(' ');
                     textWriter.Write("=> ");
@@ -209,19 +209,28 @@ namespace R8.XunitLogger
                 }
             }
         }
-        
+
         /// <summary>
         /// Returns one or more stringified properties from the log scope.
         /// </summary>
-        /// <param name="scope">The <see cref="XUnitLogScope"/> to stringify.</param>
+        /// <param name="scope">The <see cref="XunitLoggerScope"/> to stringify.</param>
         /// <returns>An enumeration of scope properties from the current scope.</returns>
-        private static IEnumerable<string> StringifyScope(XUnitLogScope scope)
+        private static IEnumerable<string> GetScopes(XunitLoggerScope scope)
         {
             if (scope.State is IEnumerable<KeyValuePair<string, object>> pairs)
             {
-                foreach (var pair in pairs)
+                var type = scope.State.GetType();
+                if (string.Equals(type.FullName, "Microsoft.Extensions.Logging.FormattedLogValues", StringComparison.Ordinal))
                 {
-                    yield return $"{pair.Key}: {pair.Value}";
+                    var values = scope.State.ToString();
+                    yield return values;
+                }
+                else
+                {
+                    foreach (var pair in pairs)
+                    {
+                        yield return $"{pair.Key}: {pair.Value}";
+                    }
                 }
             }
             else if (scope.State is IEnumerable<string> entries)
@@ -231,6 +240,13 @@ namespace R8.XunitLogger
                     yield return entry;
                 }
             }
+            // else if (scope.State is FormattedLogValues formatted)
+            // {
+            //     foreach (var pair in formatted)
+            //     {
+            //         yield return $"{pair.Key}: {pair.Value}";
+            //     }
+            // }
             else
             {
                 yield return scope.ToString();

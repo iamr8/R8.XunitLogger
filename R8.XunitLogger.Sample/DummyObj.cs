@@ -32,11 +32,11 @@ namespace R8.XunitLogger.Sample
         
         public void Test3()
         {
-            using (_logger.BeginScope("Test Scope"))
+            using (_logger.BeginScope("Scope {ScopeId}", "Root"))
             {
                 _logger.LogDebug("This is a debug message");
                 _logger.LogInformation("This is an information message");
-                using (_logger.BeginScope("Nested Scope"))
+                using (_logger.BeginScope("Scope {ScopeId}. L {FabricatedNum}", "Nested", 1))
                 {
                     _logger.LogWarning("This is a warning message");
                     _logger.LogError("This is an error message");
