@@ -56,7 +56,7 @@ public class IntegrationTest : IXunitLogProvider
     {
         var serviceProvider = new ServiceCollection()
             .AddLogging()
-            .AddXunitForwardingLoggerProvider(message => OnWriteLine?.Invoke(message), options => 
+            .AddXunitLogger(message => OnWriteLine?.Invoke(message), options => 
             {
                 // ... options
             })
