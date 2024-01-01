@@ -32,7 +32,7 @@ namespace R8.XunitLogger.Sample
         }
     }
 
-    public class IntegrationTestFixture : IXunitForwardingLogProvider
+    public class IntegrationTestFixture : IXunitLogProvider
     {
         private readonly ServiceProvider _serviceProvider;
 
@@ -42,12 +42,15 @@ namespace R8.XunitLogger.Sample
         {
             this._serviceProvider = new ServiceCollection()
                 .AddLogging()
-                .AddXunitForwardingLoggerProvider(WriteLine, options => options.MinLevel = LogLevel.Warning)
+                .AddXunitLogger(message => OnWriteLine?.Invoke(message), options =>
+                {
+                    options.MinLevel = LogLevel.Warning;
+                    options.ColorBehavior = LoggerColorBehavior.Enabled;
+                })
                 .AddScoped<DummyObj>()
                 .BuildServiceProvider();
         }
 
-        public event LogDelegate? OnWriteLine;
-        public void WriteLine(string message) => OnWriteLine?.Invoke(message);
+        public event Action<string> OnWriteLine;
     }
 }

@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace R8.XunitLogger.Sample
 {
-    public class IntegrationTestWithConfigurations : IXunitForwardingLogProvider, IDisposable
+    public class IntegrationTestWithConfigurations : IXunitLogProvider, IDisposable
     {
         private readonly ITestOutputHelper _outputHelper;
         private readonly ServiceProvider _serviceProvider;
@@ -21,14 +21,17 @@ namespace R8.XunitLogger.Sample
                     .AddJsonFile("appsettings.json", false, true)
                     .Build())
                 .AddLogging()
-                .AddXunitForwardingLoggerProvider(WriteLine, options => options.MinLevel = LogLevel.Debug)
+                .AddXunitLogger(message => OnWriteLine?.Invoke(message), options =>
+                {
+                    options.MinLevel = LogLevel.Debug;
+                    options.ColorBehavior = LoggerColorBehavior.Enabled;
+                })
                 .AddScoped<DummyObj>()
                 .BuildServiceProvider();
             this.OnWriteLine += _outputHelper.WriteLine;
         }
 
-        public event LogDelegate? OnWriteLine;
-        public void WriteLine(string message) => OnWriteLine?.Invoke(message);
+        public event Action<string>? OnWriteLine;
 
         public void Dispose()
         {

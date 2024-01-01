@@ -3,7 +3,7 @@ using Xunit.Abstractions;
 
 namespace R8.XunitLogger.Sample
 {
-    public class IntegrationTest : IXunitForwardingLogProvider, IDisposable
+    public class IntegrationTest : IXunitLogProvider, IDisposable
     {
         private readonly ITestOutputHelper _outputHelper;
         private readonly ServiceProvider _serviceProvider;
@@ -15,14 +15,16 @@ namespace R8.XunitLogger.Sample
             _outputHelper = outputHelper;
             this._serviceProvider = new ServiceCollection()
                 .AddLogging()
-                .AddXunitForwardingLoggerProvider(WriteLine)
+                .AddXunitLogger(message => OnWriteLine?.Invoke(message), o =>
+                {
+                    o.ColorBehavior = LoggerColorBehavior.Enabled;
+                })
                 .AddScoped<DummyObj>()
                 .BuildServiceProvider();
             this.OnWriteLine += _outputHelper.WriteLine;
         }
 
-        public event LogDelegate? OnWriteLine;
-        public void WriteLine(string message) => OnWriteLine?.Invoke(message);
+        public event Action<string> OnWriteLine;
 
         public void Dispose()
         {

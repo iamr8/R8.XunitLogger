@@ -12,7 +12,8 @@ namespace R8.XunitLogger.Sample
             _loggerFactory = new LoggerFactory().AddXunit(outputHelper, options =>
             {
                 options.MinLevel = LogLevel.Debug;
-                options.EnableColors = false;
+                options.ColorBehavior = LoggerColorBehavior.Disabled;
+                options.IncludeScopes = true;
                 options.Categories = new[] { "R8.XunitLogger.Sample.DummyObj" };
             });
         }
@@ -26,6 +27,34 @@ namespace R8.XunitLogger.Sample
             
             // Act
             dummy.Test();
+            
+            // Assert
+            Assert.True(true);
+        }
+        
+        [Fact]
+        public void TestWithScope()
+        {
+            // Arrange
+            var logger = _loggerFactory.CreateLogger<DummyObj>();
+            var dummy = new DummyObj(logger);
+            
+            // Act
+            dummy.Test2();
+            
+            // Assert
+            Assert.True(true);
+        }
+        
+        [Fact]
+        public void TestWithNestedScopes()
+        {
+            // Arrange
+            var logger = _loggerFactory.CreateLogger<DummyObj>();
+            var dummy = new DummyObj(logger);
+            
+            // Act
+            dummy.Test3();
             
             // Assert
             Assert.True(true);

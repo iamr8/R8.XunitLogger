@@ -8,9 +8,9 @@ namespace R8.XunitLogger
         private const string DefaultForegroundColor = "\x1B[39m\x1B[22m";
         private const string DefaultBackgroundColor = "\x1B[49m";
 
-        public static void WriteConsole(this TextWriter textWriter, string message, ConsoleColor? background, ConsoleColor? foreground, bool colorize = true)
+        public static void WriteConsole(this TextWriter textWriter, string message, ConsoleColor? background, ConsoleColor? foreground, LoggerColorBehavior colorBehavior)
         {
-            if (colorize)
+            if (colorBehavior == LoggerColorBehavior.Enabled)
             {
                 var backgroundColor = background.HasValue ? GetBackgroundColorEscapeCode(background.Value) : null;
                 var foregroundColor = foreground.HasValue ? GetForegroundColorEscapeCode(foreground.Value) : null;
