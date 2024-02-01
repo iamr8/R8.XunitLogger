@@ -32,7 +32,7 @@ If the value is set to `LoggerColorBehavior.Default`, the log levels will be col
 
 ## Usage
 
-For unit testing:
+For simple testing:
 
 ```csharp
 public class UnitTest
@@ -47,7 +47,7 @@ public class UnitTest
 }
 ```
 
-For integration testing:
+For testing with `Microsoft.Extensions.DependencyInjection`:
 
 ```csharp
 public class IntegrationTest : IXunitLogProvider
