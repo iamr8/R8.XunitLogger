@@ -3,8 +3,7 @@
     <PropertyGroup>
         <TargetFrameworks>net6.0;net7.0;net8.0;netstandard2.1</TargetFrameworks>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
-        <Nullable>enable</Nullable>
-        <Version>1.1.2</Version>
+        <Version>1.1.3</Version>
         <Authors>iamr8</Authors>
         <Description>Simple logging library for Xunit</Description>
         <PackageId>R8.XunitLogger</PackageId>
@@ -16,7 +15,6 @@
         <IncludeSymbols>true</IncludeSymbols>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <LangVersion>8</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>

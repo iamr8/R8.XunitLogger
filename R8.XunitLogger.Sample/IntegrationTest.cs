@@ -1,4 +1,6 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace R8.XunitLogger.Sample

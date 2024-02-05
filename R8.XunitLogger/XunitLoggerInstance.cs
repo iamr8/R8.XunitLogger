@@ -140,18 +140,23 @@ namespace R8.XunitLogger
                     .GetSection("Logging:LogLevel")
                     .GetChildren()
                     .ToDictionary(x => x.Key, x => Enum.Parse<LogLevel>(x.Value), StringComparer.Ordinal);
-                if (!providers.Any())
+                if (providers.Count == 0)
                     return defaultMinLevel;
 
-                var pairs = providers.Where(logCategory => categoryName.StartsWith(logCategory.Key, StringComparison.Ordinal)).ToArray();
+                var pairs = providers
+                    .Where(logCategory => categoryName.StartsWith(logCategory.Key, StringComparison.Ordinal))
+                    .ToArray();
                 if (pairs.Length > 0)
                 {
                     var defaultLogLevel = pairs.Length == 1
                         ? pairs[0]
-                        : pairs.Select(pair => new { Pair = pair, Length = pair.Key.Length, })
+                        : pairs.Select(pair => new
+                            {
+                                Pair = pair,
+                                Length = pair.Key.Length,
+                            })
                             .OrderByDescending(x => x.Length)
-                            .Select(x => x.Pair)
-                            .Max();
+                            .First().Pair;
                     return defaultLogLevel.Value;
                 }
                 else
