@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
 namespace R8.XunitLogger.Sample
@@ -41,6 +42,19 @@ namespace R8.XunitLogger.Sample
                     _logger.LogWarning("This is a warning message");
                     _logger.LogError("This is an error message");
                 }
+            }
+        }
+
+        public void Test4()
+        {
+            using (_logger.BeginScope(new Dictionary<string, object>
+                   {
+                       ["OrderId"] = 42,
+                       ["CustomerId"] = "cust-99"
+                   }))
+            {
+                _logger.LogInformation("Processing order");
+                _logger.LogWarning("Stock low for order");
             }
         }
     }

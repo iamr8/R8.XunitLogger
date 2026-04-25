@@ -1,4 +1,4 @@
-﻿// Is taken from: https://github.com/martincostello/xunit-logging/blob/main/src/Logging.XUnit/XUnitLogScope.cs
+﻿// Inspired by https://github.com/martincostello/xunit-logging/blob/main/src/Logging.XUnit/XUnitLogScope.cs
 
 using System;
 using System.Threading;
@@ -44,7 +44,7 @@ namespace R8.XunitLogger
         internal XunitLoggerScope? Parent { get; private set; }
 
         /// <inheritdoc />
-        public override string ToString() => State.ToString();
+        public override string ToString() => State.ToString() ?? string.Empty;
 
         /// <summary>
         /// Pushes a new value into the scope.

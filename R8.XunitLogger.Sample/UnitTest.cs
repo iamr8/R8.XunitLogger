@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Xunit;
+#if !NET8_0_OR_GREATER
 using Xunit.Abstractions;
+#endif
 
 namespace R8.XunitLogger.Sample
 {
@@ -13,9 +15,8 @@ namespace R8.XunitLogger.Sample
             _loggerFactory = new LoggerFactory().AddXunit(outputHelper, options =>
             {
                 options.MinimumLevel = LogLevel.Debug;
-                options.ColorBehavior = LoggerColorBehavior.Default;
                 options.IncludeScopes = true;
-                options.Categories = new[] { "R8.XunitLogger.Sample.DummyObj" };
+                options.SetMinimumLevel("R8.XunitLogger.Sample.DummyObj", LogLevel.Debug);
             });
         }
 
@@ -57,6 +58,20 @@ namespace R8.XunitLogger.Sample
             // Act
             dummy.Test3();
             
+            // Assert
+            Assert.True(true);
+        }
+
+        [Fact]
+        public void TestWithDictionaryScope()
+        {
+            // Arrange
+            var logger = _loggerFactory.CreateLogger<DummyObj>();
+            var dummy = new DummyObj(logger);
+
+            // Act
+            dummy.Test4();
+
             // Assert
             Assert.True(true);
         }

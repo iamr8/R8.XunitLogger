@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net7.0;net8.0;netstandard2.1</TargetFrameworks>
+        <TargetFrameworks>net6.0;net8.0;net10.0;netstandard2.1</TargetFrameworks>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
-        <Version>1.1.3</Version>
+        <Version>2.0.0</Version>
         <Authors>iamr8</Authors>
-        <Description>Simple logging library for Xunit</Description>
+        <Description>Bridges Microsoft.Extensions.Logging with xUnit's ITestOutputHelper. Supports xUnit v2 (net6/netstandard2.1) and xUnit v3 (net8/net10), per-namespace log-level overrides, colored output in Rider and ANSI-capable terminals, structured scope rendering, and IConfiguration-based log filtering.</Description>
         <PackageId>R8.XunitLogger</PackageId>
         <PackageTags>logging, xunit, xunitlogger, logger, xunit logger, dotnet, loggerfactory</PackageTags>
         <PackageProjectUrl>https://github.com/iamr8/R8.XunitLogger</PackageProjectUrl>
@@ -15,39 +15,32 @@
         <IncludeSymbols>true</IncludeSymbols>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
+        <!-- Pack README into the NuGet package only — do NOT copy to consumers' output. -->
         <None Include="$(SolutionDir)README.md" Pack="true" PackagePath=""/>
-        <Content Include="$(SolutionDir)README.md">
-            <Link>README.md</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0"/>
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0"/>
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'netstandard2.1'">
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Meziantou.Analyzer" Version="2.0.139">
+        <PackageReference Include="Meziantou.Analyzer" Version="3.0.54">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net10.0'">
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.7"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.7"/>
+        <PackageReference Include="xunit.v3.extensibility.core" Version="3.2.2"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'netstandard2.1'">
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1"/>
         <PackageReference Include="xunit.abstractions" Version="2.0.3"/>
     </ItemGroup>
 

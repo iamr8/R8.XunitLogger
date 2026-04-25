@@ -1,18 +1,23 @@
 using System;
 
-using Xunit.Abstractions;
-
 namespace R8.XunitLogger
 {
     /// <summary>
-    /// An interface to bring <see cref="IXunitLogProvider"/> to test fixtures.
+    /// Implemented by test fixtures that want to forward xUnit test output calls into the logging pipeline.
+    /// Implement this interface on your fixture class, subscribe <see cref="OnWriteLine" />
+    /// to the xUnit output helper's <c>WriteLine</c> in the test constructor,
+    /// and unsubscribe in <see cref="System.IDisposable.Dispose" />.
     /// </summary>
     public interface IXunitLogProvider
     {
         /// <summary>
-        /// An event to register/unregister <see cref="ITestOutputHelper.WriteLine(string)"/>.
+        /// Raised for every log line produced by the xUnit logger. Subscribe this to
+        /// the xUnit output helper's <c>WriteLine</c> method so that log output
+        /// appears in the test runner's output window.
         /// </summary>
-        /// <remarks>Please note that it's recommended to Unregister the event in <see cref="System.IDisposable.Dispose"/> method to avoid being consumed by other tests.</remarks>
+        /// <remarks>Unregister in <see cref="System.IDisposable.Dispose" /> to avoid leaking across tests.</remarks>
+#pragma warning disable MA0046 // Event uses Action<string> intentionally; changing to EventHandler<T> would be a breaking change.
         event Action<string> OnWriteLine;
+#pragma warning restore MA0046
     }
 }

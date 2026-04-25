@@ -1,13 +1,16 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+#if !NET8_0_OR_GREATER
 using Xunit.Abstractions;
+#endif
 
 namespace R8.XunitLogger.Sample
 {
     public class IntegrationTest : IXunitLogProvider, IDisposable
     {
         private readonly ITestOutputHelper _outputHelper;
+
         private readonly ServiceProvider _serviceProvider;
 
         private DummyObj Dummy => _serviceProvider.GetRequiredService<DummyObj>();
@@ -17,10 +20,7 @@ namespace R8.XunitLogger.Sample
             _outputHelper = outputHelper;
             this._serviceProvider = new ServiceCollection()
                 .AddLogging()
-                .AddXunitLogger(message => OnWriteLine?.Invoke(message), o =>
-                {
-                    o.ColorBehavior = LoggerColorBehavior.Enabled;
-                })
+                .AddXunitLogger(message => OnWriteLine?.Invoke(message))
                 .AddScoped<DummyObj>()
                 .BuildServiceProvider();
             this.OnWriteLine += _outputHelper.WriteLine;

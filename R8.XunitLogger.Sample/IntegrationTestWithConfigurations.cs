@@ -4,7 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+#if !NET8_0_OR_GREATER
 using Xunit.Abstractions;
+#endif
 
 namespace R8.XunitLogger.Sample
 {
@@ -27,7 +29,6 @@ namespace R8.XunitLogger.Sample
                 .AddXunitLogger(message => OnWriteLine?.Invoke(message), options =>
                 {
                     options.MinimumLevel = LogLevel.Debug;
-                    options.ColorBehavior = LoggerColorBehavior.Enabled;
                 })
                 .AddScoped<DummyObj>()
                 .BuildServiceProvider();
