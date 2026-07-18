@@ -44,7 +44,7 @@ namespace R8.XunitLogger.Sample
 
             // MinimumLevel = Error would normally silence everything below Error,
             // but the IConfiguration supplied via ServiceProvider should take precedence.
-            var loggerFactory = new LoggerFactory().AddXunit(_outputHelper, options =>
+            using var loggerFactory = new LoggerFactory().AddXunit(_outputHelper, options =>
             {
                 options.MinimumLevel = LogLevel.Error; // intentionally high — should be overridden
                 options.ServiceProvider = serviceProvider;
@@ -76,7 +76,7 @@ namespace R8.XunitLogger.Sample
         public void ServiceProvider_WhenNotSet_FallsBackToOptionsMinimumLevel()
         {
             // Arrange: no ServiceProvider — MinimumLevel is the sole filter.
-            var loggerFactory = new LoggerFactory().AddXunit(_outputHelper, options =>
+            using var loggerFactory = new LoggerFactory().AddXunit(_outputHelper, options =>
             {
                 options.MinimumLevel = LogLevel.Warning;
                 // options.ServiceProvider intentionally left null

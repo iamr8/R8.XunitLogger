@@ -41,6 +41,11 @@ jobs:
         with:
           languages: csharp
           queries: security-and-quality
+          # Don't analyze build-generated sources (e.g. the xunit auto-generated test entry point).
+          config: |
+            paths-ignore:
+              - "**/obj/**"
+              - "**/bin/**"
 
       - name: Build
         run: dotnet build R8.sln -c Release

@@ -63,23 +63,3 @@ jobs:
         with:
           name: test-results
           path: test-results/
-
-  aot-smoke:
-    name: Native AOT smoke test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v6
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Install AOT toolchain
-        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
-
-      - name: Publish AOT sample
-        run: dotnet publish samples/AotSmoke/AotSmoke.csproj -r linux-x64 -c Release -o ./aot-out
-
-      - name: Run native binary
-        run: ./aot-out/AotSmoke

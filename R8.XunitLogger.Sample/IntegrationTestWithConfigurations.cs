@@ -21,7 +21,7 @@ namespace R8.XunitLogger.Sample
         {
             _outputHelper = outputHelper;
             this._serviceProvider = new ServiceCollection()
-                .AddSingleton<IConfiguration>(sp => new ConfigurationBuilder()
+                .AddSingleton<IConfiguration>(_ => new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json", false, true)
                     .Build())
