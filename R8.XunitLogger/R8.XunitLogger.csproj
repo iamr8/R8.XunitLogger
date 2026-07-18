@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFrameworks>net6.0;net8.0;net10.0;netstandard2.1</TargetFrameworks>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
-        <Version>2.0.1</Version>
+        <Version>2.0.2</Version>
         <Authors>iamr8</Authors>
         <Description>Bridges Microsoft.Extensions.Logging with xUnit's ITestOutputHelper. Supports xUnit v2 (net6/netstandard2.1) and xUnit v3 (net8/net10), per-namespace log-level overrides, colored output in Rider and ANSI-capable terminals, structured scope rendering, and IConfiguration-based log filtering.</Description>
         <PackageId>R8.XunitLogger</PackageId>
@@ -13,6 +13,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Nullable>enable</Nullable>

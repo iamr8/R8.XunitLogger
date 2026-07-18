@@ -80,7 +80,7 @@ public class IntegrationTest : IXunitLogProvider, IDisposable
         OnWriteLine += _outputHelper.WriteLine;
     }
 
-    public event Action<string> OnWriteLine;
+    public event Action<string>? OnWriteLine;
 
     public void Dispose() => OnWriteLine -= _outputHelper.WriteLine;
 
@@ -118,7 +118,7 @@ public class MyFixture : IXunitLogProvider
             .BuildServiceProvider();
     }
 
-    public event Action<string> OnWriteLine;
+    public event Action<string>? OnWriteLine;
 }
 
 // Test class
