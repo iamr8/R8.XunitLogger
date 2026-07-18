@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop, master]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Build & test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write # test-reporter publishes a check run with per-test results
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            6.0.x
+            8.0.x
+            10.0.x
+
+      # Build the test project (pulls in the library via ProjectReference) rather than the whole solution,
+      # so IDE-added auxiliary projects can't break a leg. This validates all four TFMs, including
+      # netstandard2.1 which is compiled but never test-run (no runtime).
+      - name: Restore
+        run: dotnet restore R8.XunitLogger.Sample/R8.XunitLogger.Sample.csproj
+
+      - name: Build (warnings as errors)
+        run: dotnet build R8.XunitLogger.Sample/R8.XunitLogger.Sample.csproj -c Release --no-restore -p:TreatWarningsAsErrors=true -p:ContinuousIntegrationBuild=true
+
+      # net6 = xunit v2 (VSTest); net8/net10 = xunit v3 on Microsoft.Testing.Platform. dotnet test drives
+      # all three uniformly and the trx logger works across both runners. netstandard2.1 is not runnable.
+      - name: Test net6.0
+        run: dotnet test R8.XunitLogger.Sample/R8.XunitLogger.Sample.csproj -c Release -f net6.0 --no-build --logger "trx;LogFileName=net6.trx" --results-directory test-results
+
+      - name: Test net8.0
+        run: dotnet test R8.XunitLogger.Sample/R8.XunitLogger.Sample.csproj -c Release -f net8.0 --no-build --logger "trx;LogFileName=net8.trx" --results-directory test-results
+
+      - name: Test net10.0
+        run: dotnet test R8.XunitLogger.Sample/R8.XunitLogger.Sample.csproj -c Release -f net10.0 --no-build --logger "trx;LogFileName=net10.trx" --results-directory test-results
+
+      - name: Publish test report
+        uses: dorny/test-reporter@v3
+        if: always() # report pass/fail (and which tests) even when the run failed
+        with:
+          name: Test results
+          path: test-results/*.trx
+          reporter: dotnet-trx
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results
+          path: test-results/
+
+  aot-smoke:
+    name: Native AOT smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install AOT toolchain
+        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
+
+      - name: Publish AOT sample
+        run: dotnet publish samples/AotSmoke/AotSmoke.csproj -r linux-x64 -c Release -o ./aot-out
+
+      - name: Run native binary
+        run: ./aot-out/AotSmoke

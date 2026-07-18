@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R8.XunitLogger", "R8.XunitL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R8.XunitLogger.Sample", "R8.XunitLogger.Sample\R8.XunitLogger.Sample.csproj", "{8EBCDE37-C28D-4719-BE84-7E1E6A23EAEF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AotSmoke", "samples\AotSmoke\AotSmoke.csproj", "{9074D5D7-A757-408B-A818-39896F206082}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{8EBCDE37-C28D-4719-BE84-7E1E6A23EAEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EBCDE37-C28D-4719-BE84-7E1E6A23EAEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EBCDE37-C28D-4719-BE84-7E1E6A23EAEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9074D5D7-A757-408B-A818-39896F206082}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9074D5D7-A757-408B-A818-39896F206082}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9074D5D7-A757-408B-A818-39896F206082}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9074D5D7-A757-408B-A818-39896F206082}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -54,6 +54,6 @@ namespace R8.XunitLogger.Sample
                 .BuildServiceProvider();
         }
 
-        public event Action<string> OnWriteLine;
+        public event Action<string>? OnWriteLine;
     }
 }

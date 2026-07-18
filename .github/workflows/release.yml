@@ -1,0 +1,165 @@
+name: Release
+
+# Runs when develop is merged into master (master is protected — no direct pushes), or manually via
+# workflow_dispatch. The `check` job compares the csproj <Version> against the latest version already on
+# NuGet: only if it is strictly newer does the pipeline build, publish the GitHub release (github-release
+# environment), and push to NuGet (nuget environment). Otherwise it logs a warning and skips — so merging
+# workflow-only changes to master never publishes a package.
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check version is newer
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+      should_release: ${{ steps.check.outputs.should_release }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Compare csproj version against the latest published on NuGet
+        id: check
+        run: |
+          VERSION=$(grep -oPm1 '(?<=<Version>)[^<]+' R8.XunitLogger/R8.XunitLogger.csproj)
+          if [ -z "$VERSION" ]; then echo "::error::Could not read <Version> from csproj"; exit 1; fi
+
+          RESP=$(curl -s https://api.nuget.org/v3-flatcontainer/r8.xunitlogger/index.json || true)
+          LATEST=$(echo "$RESP" | jq -r '.versions[]? // empty' 2>/dev/null | sort -V | tail -1)
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "csproj version: $VERSION; latest on NuGet: ${LATEST:-<none>}"
+
+          if [ -z "$LATEST" ]; then
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          elif [ "$VERSION" = "$LATEST" ]; then
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Release skipped::Version $VERSION is already the latest on NuGet; skipping GitHub release and NuGet publish. Bump <Version> to release."
+          else
+            TOP=$(printf '%s\n%s\n' "$VERSION" "$LATEST" | sort -V | tail -1)
+            if [ "$TOP" = "$VERSION" ]; then
+              echo "should_release=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "should_release=false" >> "$GITHUB_OUTPUT"
+              echo "::warning title=Release skipped::Version $VERSION is not newer than the latest published ($LATEST); skipping GitHub release and NuGet publish."
+            fi
+          fi
+
+  build:
+    name: Build, test & pack
+    needs: check
+    if: ${{ needs.check.outputs.should_release == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # full history so SourceLink embeds correct commit info
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            6.0.x
+            8.0.x
+            10.0.x
+
+      # Build the test project (references the library) rather than the whole solution, so IDE-added
+      # auxiliary projects can't affect the release build.
+      - name: Restore
+        run: dotnet restore R8.XunitLogger.Sample/R8.XunitLogger.Sample.csproj
+
+      - name: Build (warnings as errors)
+        run: dotnet build R8.XunitLogger.Sample/R8.XunitLogger.Sample.csproj -c Release --no-restore -p:TreatWarningsAsErrors=true -p:ContinuousIntegrationBuild=true
+
+      - name: Test net6.0
+        run: dotnet test R8.XunitLogger.Sample/R8.XunitLogger.Sample.csproj -c Release -f net6.0 --no-build
+
+      - name: Test net8.0
+        run: dotnet test R8.XunitLogger.Sample/R8.XunitLogger.Sample.csproj -c Release -f net8.0 --no-build
+
+      - name: Test net10.0
+        run: dotnet test R8.XunitLogger.Sample/R8.XunitLogger.Sample.csproj -c Release -f net10.0 --no-build
+
+      - name: Pack
+        run: dotnet pack R8.XunitLogger/R8.XunitLogger.csproj -c Release --no-build -o ./artifacts
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: nuget-package
+          path: ./artifacts/*.*nupkg
+          if-no-files-found: error
+
+  github-release:
+    name: Publish GitHub release
+    needs: [check, build]
+    if: ${{ needs.check.outputs.should_release == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the git tag and GitHub release
+    environment:
+      name: github-release
+      url: https://github.com/${{ github.repository }}/releases/tag/v${{ needs.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Download package artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: nuget-package
+          path: ./artifacts
+
+      - name: Tag and create GitHub release
+        env:
+          VERSION: ${{ needs.check.outputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+          gh release create "v$VERSION" --title "v$VERSION" --generate-notes ./artifacts/*.*nupkg
+
+  publish-nuget:
+    name: Push to NuGet
+    needs: [check, build, github-release]
+    if: ${{ needs.check.outputs.should_release == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # mint the GitHub OIDC token for NuGet Trusted Publishing
+    environment:
+      name: nuget
+      url: https://www.nuget.org/packages/R8.XunitLogger
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Download package artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: nuget-package
+          path: ./artifacts
+
+      # Exchange the OIDC token for a short-lived (1 h) API key immediately before pushing.
+      - name: NuGet login (OIDC → short-lived API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push to NuGet
+        run: dotnet nuget push "./artifacts/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
