@@ -8,11 +8,11 @@ namespace R8.XunitLogger
     /// <summary>
     /// A class representing a scope for logging. This class cannot be inherited.
     /// </summary>
-    /// <remarks>
-    /// Initializes a new instance of the <see cref="XunitLoggerScope"/> class.
-    /// </remarks>
     internal sealed class XunitLoggerScope
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XunitLoggerScope"/> class.
+        /// </summary>
         /// <param name="state">The state object for the scope.</param>
         public XunitLoggerScope(object state)
         {

@@ -5,8 +5,9 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+#if NET8_0_OR_GREATER
 using Xunit;
-#if !NET8_0_OR_GREATER
+#else
 using Xunit.Abstractions;
 #endif
 

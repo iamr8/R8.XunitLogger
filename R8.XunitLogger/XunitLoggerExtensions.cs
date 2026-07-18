@@ -2,8 +2,9 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+#if NET8_0_OR_GREATER
 using Xunit;
-#if !NET8_0_OR_GREATER
+#else
 using Xunit.Abstractions;
 #endif
 

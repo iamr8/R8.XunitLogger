@@ -28,14 +28,14 @@ namespace R8.XunitLogger
         /// Gets or sets a value indicating whether to include scopes in log messages.
         /// </summary>
         /// <remarks>Default is <see langword="false" />.</remarks>
-        public bool IncludeScopes { get; set; } = false;
+        public bool IncludeScopes { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="System.IServiceProvider" /> used to resolve <see cref="IConfiguration" />
         /// for log-level configuration. When set, the <see cref="MinimumLevel" /> may be overridden by
         /// <see cref="Microsoft.Extensions.Logging.LogLevel" /> defined in configuration.
         /// </summary>
-        public IServiceProvider? ServiceProvider { get; set; } = null;
+        public IServiceProvider? ServiceProvider { get; set; }
 
         /// <summary>
         /// Gets or sets a list of category name prefixes (fully-qualified) to allow logging.

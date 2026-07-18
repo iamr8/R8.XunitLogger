@@ -6,5 +6,4 @@ riderModule.iml
 .vs
 .idea
 .editorconfig
-/aot-out/
 /artifacts/
