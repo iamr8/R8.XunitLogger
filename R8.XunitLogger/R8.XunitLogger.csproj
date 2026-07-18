@@ -20,7 +20,7 @@
 
     <ItemGroup>
         <!-- Pack README into the NuGet package only — do NOT copy to consumers' output. -->
-        <None Include="$(SolutionDir)README.md" Pack="true" PackagePath=""/>
+        <None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath=""/>
     </ItemGroup>
 
     <ItemGroup>
